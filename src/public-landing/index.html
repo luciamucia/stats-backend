@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>AI Energy Management App | Automate Savings & Control Your Home Energy</title>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        // Ensure Inter font is used (Tailwind default includes it)
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        // Updated colors based on c4e.io
+                        primary: '#1E134F', // Dark Blue/Purple
+                        secondary: '#00FFAA', // Bright Green
+                        'primary-dark': '#150D37', // Darker shade for hover
+                        'secondary-light': '#E6FFF6', // Light shade for backgrounds
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Add minor custom styles if needed, but prefer Tailwind classes */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Simple button hover effect */
+        .cta-button {
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .feature-icon, .step-icon {
+            /* Placeholder style for icons - using secondary color */
+            width: 50px;
+            height: 50px;
+            background-color: #E6FFF6; /* Light secondary color */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem; /* Center icon and add bottom margin */
+            font-size: 1.5rem; /* Example icon size */
+            color: #1E134F; /* Primary color for icon */
+        }
+        .logo-placeholder {
+            height: 40px;
+            filter: grayscale(100%);
+            opacity: 0.6;
+            margin: 0 1rem; /* Spacing between logos */
+        }
+        .testimonial-card {
+            background-color: #f9f9f9; /* Light background for testimonials */
+        }
+        /* Ensure video maintains aspect ratio */
+        .hero-video {
+            aspect-ratio: 16 / 9; /* Adjust if video aspect ratio is different */
+            object-fit: cover; /* Cover the container */
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-800">
+
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <div class="text-2xl font-bold text-gray-800">
+                Your<span class="text-primary">App</span>Logo
+                </div>
+            <div>
+                <a href="#features" class="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">Features</a>
+                <a href="#how-it-works" class="text-gray-600 hover:text-primary px-3 py-2 rounded-md text-sm font-medium">How It Works</a>
+                <a href="#cta-bottom" class="bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg cta-button ml-4 text-sm">
+                    Download App
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <section id="hero" class="bg-gradient-to-br from-blue-50 to-indigo-100 py-20 md:py-32">
+        <div class="container mx-auto px-6 text-center">
+            <div class="w-full max-w-2xl mx-auto rounded-lg mb-8 overflow-hidden shadow-xl">
+                 <video
+                    class="w-full h-auto hero-video"
+                    src="https://c4e.io/wp-content/uploads/2025/04/Kapture-2025-04-02-at-11.07.24-1.mp4"
+                    autoplay
+                    loop
+                    muted
+                    playsinline /* Important for mobile autoplay */
+                    preload="metadata" /* Helps browser load video info faster */
+                    >
+                    Your browser does not support the video tag.
+                    </video>
+            </div>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 leading-tight">
+                Automate Your Energy Savings with AI
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 mb-6 max-w-3xl mx-auto">
+                Meet the intelligent app that uses AI Agents to analyze your energy use, automatically optimize your devices, and significantly cut your bills.
+            </p>
+            <div class="bg-secondary-light text-primary font-semibold py-2 px-4 rounded-full inline-block mb-8 text-sm md:text-base border border-secondary">
+                Save up to 30-45% on your energy costs.
+            </div>
+            <div class="space-x-4">
+                <a href="#cta-bottom" class="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-8 rounded-lg cta-button text-lg">
+                    Download the App
+                </a>
+                <a href="#features" class="text-primary hover:underline font-semibold py-3 px-6 rounded-lg text-lg">
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="problem-solution" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Tired of Skyrocketing Energy Bills & Complex Controls?</h2>
+                    <p class="text-gray-600 mb-4 text-lg">
+                        Struggling to lower unpredictable energy costs? Feeling overwhelmed managing multiple smart devices manually? Unsure where your energy consumption (and money) is actually going? You're not alone.
+                    </p>
+                    <div class="flex space-x-4 text-gray-400 mt-6">
+                        <i class="fas fa-file-invoice-dollar fa-2x" title="High Bills"></i>
+                        <i class="fas fa-plug-circle-exclamation fa-2x" title="Complex Devices"></i>
+                        <i class="fas fa-question-circle fa-2x" title="Lack of Clarity"></i>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-md">
+                     <h3 class="text-2xl md:text-3xl font-semibold text-primary mb-3">The Smart, Simple Solution is Here.</h3>
+                    <p class="text-gray-700 text-lg">
+                        Our AI Energy Management app takes the complexity out of saving energy. Powered by autonomous <strong class="font-semibold">Intelligent Energy Agents</strong>, it works tirelessly behind the scenes to analyze data, predict usage, and optimize your home's energy flow – effortlessly putting you back in control and shrinking your bills.
+                    </p>
+                     <div class="flex space-x-4 text-secondary mt-6">
+                        <i class="fas fa-chart-line fa-2x" title="Savings"></i>
+                        <i class="fas fa-robot fa-2x" title="Automation"></i>
+                        <i class="fas fa-house-circle-check fa-2x" title="Control"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="py-16 md:py-24 bg-gray-100">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-12">Get Optimized in 3 Simple Steps</h2>
+            <div class="grid md:grid-cols-3 gap-8 md:gap-12">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="step-icon"><i class="fas fa-plug"></i></div>
+                    <h3 class="text-xl font-semibold mb-2">1. Connect Your Devices</h3>
+                    <p class="text-gray-600">Easily link your smart meter, compatible smart devices (EV chargers, batteries, thermostats, solar), and platforms like <strong>Home Assistant</strong>.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="step-icon"><i class="fas fa-cogs"></i></div>
+                    <h3 class="text-xl font-semibold mb-2">2. Let AI Optimize</h3>
+                    <p class="text-gray-600">Our AI agents analyze real-time prices, grid signals, weather, and your preferences to make autonomous optimization decisions 24/7.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                     <div class="step-icon"><i class="fas fa-mobile-alt"></i></div>
+                    <h3 class="text-xl font-semibold mb-2">3. Save & Control</h3>
+                    <p class="text-gray-600">Monitor usage, track savings, view reports, and manage settings anytime via our intuitive mobile app.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">Unlock Powerful Energy Intelligence</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="flex items-start space-x-4">
+                    <div class="feature-icon flex-shrink-0 mt-1"><i class="fas fa-brain"></i></div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">AI-Powered Optimization</h3>
+                        <p class="text-gray-600">Autonomous agents intelligently manage EV charging, batteries, heat pumps, HVAC based on real-time data for maximum efficiency.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="feature-icon flex-shrink-0 mt-1"><i class="fas fa-chart-bar"></i></div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">Real-time Monitoring & Insights</h3>
+                        <p class="text-gray-600">Crystal-clear visibility into energy consumption/production with detailed hourly, daily, monthly reports.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="feature-icon flex-shrink-0 mt-1"><i class="fas fa-network-wired"></i></div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">Smart Device Integration</h3>
+                        <p class="text-gray-600">Seamlessly connect and centrally manage a wide range of smart home energy devices from leading brands.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="feature-icon flex-shrink-0 mt-1"><i class="fas fa-coins"></i></div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">Cost & Savings Tracking</h3>
+                        <p class="text-gray-600">Visualize estimated energy costs and clearly track financial savings generated by the app's optimizations.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="feature-icon flex-shrink-0 mt-1"><i class="fas fa-lightbulb"></i></div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">Personalized Recommendations</h3>
+                        <p class="text-gray-600">Receive tailored tips and actionable insights based on your unique energy usage patterns to save even more.</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                    <div class="feature-icon flex-shrink-0 mt-1"><i class="fas fa-shield-alt"></i></div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-1">Built for Privacy & Control</h3>
+                        <p class="text-gray-600">Your data, your rules. Benefit from privacy-preserving AI with options for local processing. Designed with security at its core.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+     <section id="benefits" class="py-16 md:py-24 bg-gradient-to-br from-secondary-light to-blue-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">Why Choose Our AI Energy Manager?</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-secondary text-xl flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-semibold text-lg">Significantly Lower Energy Bills</h4>
+                        <p class="text-gray-600 text-sm">Reduce costs by optimizing usage (potential for 30-45% savings).</p>
+                    </div>
+                </div>
+                 <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-secondary text-xl flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-semibold text-lg">Effortless Energy Management</h4>
+                        <p class="text-gray-600 text-sm">Enjoy automated convenience. Set it up once and let the AI handle the rest 24/7.</p>
+                    </div>
+                </div>
+                 <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-secondary text-xl flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-semibold text-lg">Maximize Renewable Self-Consumption</h4>
+                        <p class="text-gray-600 text-sm">Get the most value from your solar panels and battery storage systems.</p>
+                    </div>
+                </div>
+                 <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-secondary text-xl flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-semibold text-lg">Enhanced Control & Visibility</h4>
+                        <p class="text-gray-600 text-sm">Understand your energy usage like never before and manage everything from one app.</p>
+                    </div>
+                </div>
+                 <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-secondary text-xl flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-semibold text-lg">Support Sustainability Goals</h4>
+                        <p class="text-gray-600 text-sm">Reduce your carbon footprint and contribute to a more stable, greener grid.</p>
+                    </div>
+                </div>
+                 <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-secondary text-xl flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-semibold text-lg">Your Data Stays Private & Secure</h4>
+                        <p class="text-gray-600 text-sm">Designed with data security and user privacy as top priorities, offering local control options.</p>
+                    </div>
+                </div>
+                 <div class="flex items-center space-x-3">
+                    <i class="fas fa-check-circle text-secondary text-xl flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-semibold text-lg">Future-Ready</h4>
+                        <p class="text-gray-600 text-sm">Position your home for emerging energy opportunities like VPPs and grid services.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="audience" class="py-16 md:py-24 bg-white">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">Intelligent Energy for Every Smart Home</h2>
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div>
+                    <i class="fas fa-home text-4xl text-primary mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">For Homeowners</h3>
+                    <p class="text-gray-600">Perfect for households with EVs, solar, batteries, smart thermostats, or those simply wanting automated savings.</p>
+                </div>
+                <div>
+                    <i class="fas fa-store text-4xl text-primary mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">For Small Businesses</h3>
+                    <p class="text-gray-600">Reduce operational costs and gain predictable energy management for your shop or office.</p>
+                </div>
+                <div class="md:col-span-1 bg-primary/10 p-6 rounded-lg border border-primary/30 shadow-sm">
+                     <img src="https://placehold.co/100x40/1E134F/FFFFFF?text=HA+Logo" alt="Home Assistant Logo" class="h-10 mx-auto mb-4" onerror="this.style.display='none'">
+                    <h3 class="text-xl font-semibold mb-2 text-primary">For Home Assistant Users</h3>
+                    <p class="text-gray-700">Seamless integration via our dedicated add-on. Leverage your existing setup with AI optimization while prioritizing <strong class="font-semibold">local control and data privacy</strong>.</p>
+                    <a href="#" class="text-primary hover:underline font-medium mt-3 inline-block">Learn about HA Integration</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="trust" class="py-16 md:py-24 bg-gray-100">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-12 text-center">Trusted by Homes & Businesses Like Yours</h2>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <div class="testimonial-card p-6 rounded-lg shadow">
+                    <p class="text-gray-600 italic mb-4">"[Placeholder: Quote about significant savings and ease of use. This app is fantastic!]"</p>
+                    <p class="font-semibold text-gray-800">- [User Name/Type, Location]</p>
+                </div>
+                <div class="testimonial-card p-6 rounded-lg shadow">
+                    <p class="text-gray-600 italic mb-4">"[Placeholder: Quote highlighting the HA integration and privacy aspects. Finally, AI that respects my local setup!]"</p>
+                    <p class="font-semibold text-gray-800">- [HA User Name]</p>
+                </div>
+            </div>
+
+            <div class="text-center mb-8">
+                 <h3 class="text-lg font-semibold text-gray-700 mb-4">Our Partners & Integrations</h3>
+                 <div class="flex justify-center items-center flex-wrap">
+                    <img src="https://placehold.co/120x40/cccccc/999999?text=Partner+1" alt="Partner Logo 1" class="logo-placeholder" onerror="this.style.display='none'">
+                    <img src="https://placehold.co/120x40/cccccc/999999?text=Partner+2" alt="Partner Logo 2" class="logo-placeholder" onerror="this.style.display='none'">
+                    <img src="https://placehold.co/100x40/1E134F/FFFFFF?text=HA+Logo" alt="Home Assistant Logo" class="logo-placeholder" onerror="this.style.display='none'">
+                    <img src="https://placehold.co/120x40/cccccc/999999?text=Integration" alt="Integration Logo" class="logo-placeholder" onerror="this.style.display='none'">
+                 </div>
+            </div>
+
+            <div class="text-center text-gray-500 text-sm">
+                <p class="mb-2">[Placeholder: Mention Awards/Recognition if applicable]</p>
+                <p class="mb-2">[Placeholder: User Stats like "Optimizing energy in 15,000+ smart homes"]</p>
+                <div class="flex justify-center space-x-4 mt-2">
+                    <span>[Placeholder: GDPR Badge]</span>
+                    <span>[Placeholder: SOC 2 Badge]</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cta-bottom" class="py-16 md:py-24 bg-primary text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Unlock AI-Powered Energy Savings?</h2>
+            <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto">Download the app today and start optimizing your energy use effortlessly.</p>
+            <div class="space-x-0 md:space-x-4 space-y-4 md:space-y-0">
+                 <a href="#" class="bg-secondary hover:bg-green-400 text-primary font-bold py-3 px-8 rounded-lg cta-button text-lg inline-block">
+                    Download the App Now
+                </a>
+                <a href="#" class="border-2 border-secondary hover:bg-secondary hover:text-primary text-secondary font-semibold py-3 px-6 rounded-lg text-lg inline-block transition duration-300">
+                    Request a Demo
+                </a>
+                 <a href="#features" class="border-2 border-white hover:bg-white hover:text-primary text-white font-semibold py-3 px-6 rounded-lg text-lg inline-block transition duration-300">
+                    Explore Features
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-primary text-gray-300 py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h4 class="text-white text-lg font-semibold mb-3">YourAppName</h4>
+                    <p class="text-sm">Intelligent energy management for a smarter future.</p>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-3">Quick Links</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#features" class="hover:text-secondary">Features</a></li>
+                        <li><a href="#how-it-works" class="hover:text-secondary">How It Works</a></li>
+                        <li><a href="#benefits" class="hover:text-secondary">Benefits</a></li>
+                        <li><a href="#audience" class="hover:text-secondary">Integrations</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="text-white font-semibold mb-3">Resources</h5>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-secondary">About Us</a></li>
+                        <li><a href="#" class="hover:text-secondary">Support</a></li>
+                        <li><a href="#" class="hover:text-secondary">FAQs</a></li>
+                        <li><a href="#" class="hover:text-secondary">Blog/News</a></li>
+                    </ul>
+                </div>
+                 <div>
+                    <h5 class="text-white font-semibold mb-3">Legal</h5>
+                    <ul class="space-y-2 text-sm mb-4">
+                        <li><a href="#" class="hover:text-secondary">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-secondary">Terms of Service</a></li>
+                    </ul>
+                     <h5 class="text-white font-semibold mb-2">Contact</h5>
+                     <p class="text-sm"><a href="mailto:support@yourappdomain.com" class="hover:text-secondary">support@yourappdomain.com</a></p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+                <p>&copy; 2025 YourAppName/Company Name. All rights reserved.</p>
+                <div class="flex space-x-4 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-300 hover:text-secondary" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-300 hover:text-secondary" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-300 hover:text-secondary" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

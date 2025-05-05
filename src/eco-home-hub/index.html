@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="js/chart.min.js"></script>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-16 md:w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col transition-all duration-300 flex-shrink-0">
+        <div class="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-gray-700 flex-shrink-0">
+            <i class="fas fa-home text-2xl text-blue-400"></i>
+            <span class="hidden md:inline ml-3 text-lg font-semibold">Smart Home</span>
+        </div>
+        <nav id="sidebar-nav" class="flex-1 mt-6 px-2 md:px-4 space-y-2 overflow-y-auto">
+            <a href="#overview" data-section="overview-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-tachometer-alt w-6 text-center md:mr-3"></i><span class="hidden md:inline">Overview</span>
+            </a>
+            <a href="#energy" data-section="energy-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-bolt w-6 text-center md:mr-3"></i><span class="hidden md:inline">Energy</span>
+            </a>
+            <a href="#living-room" data-section="living-room-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-couch w-6 text-center md:mr-3"></i><span class="hidden md:inline">Living Room</span>
+            </a>
+             <a href="#kitchen" data-section="kitchen-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-utensils w-6 text-center md:mr-3"></i><span class="hidden md:inline">Kitchen</span>
+            </a>
+            <a href="#bedroom" data-section="bedroom-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-bed w-6 text-center md:mr-3"></i><span class="hidden md:inline">Bedroom</span>
+            </a>
+             <a href="#user-profile" data-section="user-profile-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-user w-6 text-center md:mr-3"></i><span class="hidden md:inline">User Profile</span>
+            </a>
+             <a href="#settings" data-section="settings-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-cog w-6 text-center md:mr-3"></i><span class="hidden md:inline">Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white shadow-md flex items-center justify-between px-4 md:px-6 border-b flex-shrink-0">
+            <h1 id="main-header-title" class="text-xl md:text-2xl font-semibold text-gray-700">Home Overview</h1>
+            <div>
+                <button id="ai-assistant-trigger" class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center action-button">
+                    <i class="fas fa-leaf mr-2"></i><span class="hidden sm:inline">Energy AI</span>
+                </button>
+            </div>
+        </header>
+
+        <main id="main-content" class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6 lg:p-8">
+
+            <div id="overview-section" class="content-section active">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-thermometer-half mr-2 text-orange-500"></i> Living Room Thermostat</h2>
+                        <p class="text-3xl font-bold text-gray-800 mb-3">21<span class="text-xl">°C</span></p>
+                        <div class="flex space-x-2">
+                            <button class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md transition"><i class="fas fa-chevron-down"></i></button>
+                            <button class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md transition"><i class="fas fa-chevron-up"></i></button>
+                            <button class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-md transition">Mode: Auto</button>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-lightbulb mr-2 text-yellow-500"></i> Kitchen Lights</h2>
+                        <p class="text-sm text-gray-500 mb-3">Status: <span class="font-medium text-green-600">On</span> | Brightness: 75%</p>
+                         <div class="flex space-x-2">
+                            <button class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md transition">Turn Off</button>
+                            <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition">Adjust</button>
+                        </div>
+                    </div>
+                     <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-plug mr-2 text-purple-500"></i> Smart Plug (Desk Lamp)</h2>
+                        <p class="text-sm text-gray-500 mb-3">Status: <span class="font-medium text-gray-600">Off</span> | Energy: 0.1 kWh today</p>
+                         <div class="flex space-x-2">
+                             <button class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-md transition">Turn On</button>
+                             <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition">Schedule</button>
+                        </div>
+                    </div>
+                     <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-video mr-2 text-red-500"></i> Front Door Camera</h2>
+                        <p class="text-sm text-gray-500 mb-3">Status: <span class="font-medium text-blue-600">Online</span> | Last Event: 10 min ago</p>
+                         <div class="flex space-x-2">
+                            <button class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-md transition">View Live</button>
+                            <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition">Events</button>
+                        </div>
+                    </div>
+                     <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-wind mr-2 text-blue-400"></i> Bedroom Air Purifier</h2>
+                        <p class="text-sm text-gray-500 mb-3">Status: <span class="font-medium text-green-600">On</span> | Mode: Auto</p>
+                         <div class="flex space-x-2">
+                             <button class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md transition">Turn Off</button>
+                             <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition">Mode</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="energy-section" class="content-section">
+                <!-- Nodes (positions updated via CSS) 
+                <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Live Energy Flow</h2>
+                    <div id="energy-flow" class="energy-flow-container">
+                        
+                        <div id="node-solar" class="energy-node">
+                            <i class="fas fa-solar-panel text-yellow-500"></i>
+                            <span>Solar</span>
+                            <span id="solar-value" class="energy-value">0.0 kW</span>
+                        </div>
+                        <div id="node-grid" class="energy-node">
+                            <i class="fas fa-broadcast-tower text-gray-500"></i> <span>Grid</span>
+                            <span id="grid-value" class="energy-value">0.0 kW</span>
+                        </div>
+                        <div id="node-home" class="energy-node">
+                            <i class="fas fa-home text-green-500"></i>
+                            <span>Home</span>
+                            <span id="home-value" class="energy-value">0.0 kW</span>
+                        </div>
+                         <div id="node-battery" class="energy-node">
+                            <i class="fas fa-battery-half text-gray-500"></i> <span>Battery</span>
+                            <span id="battery-value" class="energy-value">0.0 kW</span> 
+                            <span id="battery-soc" class="text-xs text-gray-500 mt-1">--%</span>
+                        </div>
+                        <div id="node-ev" class="energy-node">
+                            <i class="fas fa-car-battery text-gray-500"></i> <span>EV</span>
+                            <span id="ev-value" class="energy-value">0.0 kW</span>
+                        </div>
+
+                        
+                        <svg class="energy-flow-svg" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                            <path id="path-solar-home" class="energy-path" d=""></path>
+                            <path id="path-battery-home" class="energy-path" d=""></path>
+                            <path id="path-ev-home" class="energy-path" d=""></path>
+                            <path id="path-grid-home" class="energy-path" d=""></path>
+                        </svg>
+                    </div>
+                    <p class="text-center text-xs text-gray-500 mt-4">Live data simulation.</p>
+                </div>-->
+
+                <div class="bg-white rounded-xl shadow-lg p-4 md:p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Energy Statistics</h2>
+                    <div class="chart-placeholder" style="min-height:340px; background:#f3f4f6; border:1.5px dashed #cbd5e1; border-radius:12px; display:flex; align-items:center; justify-content:center; padding:16px 0;">
+                        <!-- Chart will be rendered here -->
+                    </div>
+                    <div class="mb-4 flex justify-center space-x-2">
+                        <button class="time-period-btn active bg-teal-600 text-white px-4 py-1 rounded-md text-sm" data-period="today">Today</button>
+                        <button class="time-period-btn bg-gray-200 text-gray-700 px-4 py-1 rounded-md text-sm hover:bg-gray-300" data-period="week">Last Week</button>
+                        <button class="time-period-btn bg-gray-200 text-gray-700 px-4 py-1 rounded-md text-sm hover:bg-gray-300" data-period="month">Last Month</button>
+                    </div>
+                    <div id="stats-display">
+                    </div>
+                </div>
+            </div>
+
+            <div id="living-room-section" class="content-section"><p class="text-gray-600">Living Room content goes here...</p></div>
+            <div id="kitchen-section" class="content-section"><p class="text-gray-600">Kitchen content goes here...</p></div>
+            <div id="bedroom-section" class="content-section"><p class="text-gray-600">Bedroom content goes here...</p></div>
+            <div id="user-profile-section" class="content-section">
+                <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">User Profile</h2>
+                    <form id="user-profile-form" class="mb-4">
+                        <label class="block mb-2 font-semibold">Your Name:
+                            <input type="text" id="user-name" class="border rounded px-2 py-1 w-full mt-1" required />
+                        </label>
+                        <div class="mb-2 font-semibold">Family Members:</div>
+                        <div id="family-members-list"></div>
+                        <button type="button" id="add-family-member" class="mt-2 bg-teal-500 text-white px-3 py-1 rounded">Add Member</button>
+                        <div class="mt-4">
+                            <label class="font-semibold">Who is interacting with the agent?</label>
+                            <select id="active-family-member" class="border rounded px-2 py-1 w-full mt-1"></select>
+                        </div>
+                        <button type="submit" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded">Save Profile</button>
+                    </form>
+                </div>
+            </div>
+            <div id="settings-section" class="content-section"><p class="text-gray-600">Settings content goes here...</p></div>
+
+        </main>
+    </div>
+
+    <div id="ai-assistant-panel" class="fixed top-0 right-0 h-full w-full max-w-md md:max-w-lg bg-white shadow-2xl flex flex-col transform translate-x-full hidden">
+        <header class="bg-gradient-to-r from-green-600 to-teal-600 p-4 text-white flex items-center justify-between shadow-md flex-shrink-0">
+            <h1 class="text-lg font-semibold flex items-center"><i class="fas fa-leaf mr-2"></i> AI Energy Assistant</h1>
+            <button id="ai-close-button" class="text-white hover:text-gray-200 focus:outline-none text-xl"><i class="fas fa-times"></i></button>
+        </header>
+        <div id="ai-chat-area" class="flex-1 p-4 space-y-4 overflow-y-auto bg-gray-50">
+             <div class="ai-message flex"> <div class="flex-shrink-0 mr-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold"><i class="fas fa-leaf text-sm"></i></div></div> <div class="bg-teal-100 text-gray-800 p-3 rounded-lg rounded-tl-none max-w-xs shadow"><p class="text-sm">Hello! I can help optimize your home's energy usage. Try asking "Optimize energy" or "Show energy report".</p></div> </div>
+        </div>
+        <div id="ai-typing-indicator" class="p-4 hidden flex-shrink-0"> <div class="flex"><div class="flex-shrink-0 mr-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold"><i class="fas fa-leaf text-sm"></i></div></div><div class="bg-teal-100 text-gray-800 p-3 rounded-lg rounded-tl-none shadow inline-block"><div class="ai-typing-indicator"><span></span><span></span><span></span></div></div></div></div>
+        <footer class="p-4 border-t border-gray-200 bg-white flex-shrink-0"> <div class="flex items-center space-x-3"> <input type="text" id="ai-user-input" placeholder="Ask about energy..." class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150 text-sm"> <button id="ai-send-button" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center justify-center action-button"><i class="fas fa-paper-plane text-sm"></i></button> </div> </footer>
+    </div>
+
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300"></div>
+
+    <!-- Load JavaScript at the end -->
+    <script src="js/main.js"></script>
+    </body>
+</html>

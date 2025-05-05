@@ -1,0 +1,142 @@
+/* Custom Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f0f2f5;
+}
+
+/* AI Assistant Panel Styles */
+#ai-assistant-panel { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; z-index: 50; }
+#ai-assistant-panel.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+
+/* Scrollbar styling for AI chat */
+#ai-chat-area::-webkit-scrollbar { width: 6px; }
+#ai-chat-area::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+#ai-chat-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+#ai-chat-area::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* AI Message Fade-in Animation */
+.ai-message { opacity: 0; transform: translateY(10px); animation: fadeIn 0.5s ease-out forwards; }
+.ai-message b, .ai-message strong {
+  font-weight: 600;
+  font-size: 1em;
+}
+.ai-message .bg-teal-100, .ai-message .bg-teal-600 {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.ai-message p, .ai-message ul, .ai-message ol, .ai-message li {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+@keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+/* AI Typing Indicator */
+.ai-typing-indicator span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #94a3b8; margin: 0 2px; animation: bounce 1.4s infinite ease-in-out both; }
+.ai-typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+.ai-typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+@keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+
+/* Button Touch Targets */
+.action-button { min-width: 80px; min-height: 40px; }
+.ai-action-button { min-width: 60px; min-height: 30px; padding: 0.25rem 0.75rem; font-size: 0.75rem; }
+
+/* Chart Placeholder */
+.chart-placeholder { width: 100%; height: 150px; background-color: #e2e8f0; border: 1px dashed #94a3b8; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.8rem; border-radius: 0.5rem; margin-top: 0.75rem; }
+.ai-chart-placeholder { height: 100px; font-size: 0.7rem; }
+
+/* Dashboard card styling */
+.dashboard-card { background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); padding: 1.5rem; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+
+/* Energy Flow Styles */
+.energy-flow-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px; /* Increased width for new layout */
+    margin: 2rem auto;
+    height: 350px; /* Increased height */
+    /* border: 1px dashed red; /* For debugging layout */
+}
+
+.energy-node {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 80px; /* Give nodes some width */
+}
+.energy-node i {
+    font-size: 2rem; /* Slightly smaller icons */
+    margin-bottom: 0.3rem;
+    padding: 0.8rem; /* Adjusted padding */
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 50px; /* Fixed icon background size */
+    height: 50px; /* Fixed icon background size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.energy-node span { font-weight: 500; color: #4b5563; font-size: 0.8rem; } /* Smaller text */
+.energy-value { font-weight: 600; color: #1f2937; font-size: 0.9rem; margin-top: 0.1rem; } /* Smaller text */
+
+/* Node Positions - New Layout */
+#node-solar { top: 10%; left: 0; transform: translateY(-50%); } /* Top-Left */
+#node-battery { top: 50%; left: 0; transform: translateY(-50%); } /* Mid-Left */
+#node-ev { bottom: 10%; left: 0; transform: translateY(50%); } /* Bottom-Left */
+#node-home { top: 50%; left: 50%; transform: translate(-50%, -50%); } /* Center */
+#node-grid { top: 50%; right: 0; transform: translateY(-50%); } /* Mid-Right */
+
+/* SVG Path Styles */
+.energy-flow-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Behind nodes */
+    overflow: visible;
+}
+
+.energy-path {
+    fill: none;
+    stroke: #d1d5db; /* Default light gray */
+    stroke-width: 4px;
+    stroke-linecap: round;
+    stroke-dasharray: 10 10; /* Dashed line pattern */
+    opacity: 0; /* Hidden by default */
+    transition: stroke 0.3s ease, opacity 0.3s ease; /* Smooth color/visibility changes */
+}
+
+.energy-path.active {
+     opacity: 1; /* Show active path */
+     animation: dash-flow 1.5s linear infinite;
+}
+
+@keyframes dash-flow {
+    to {
+        stroke-dashoffset: -40; /* Twice the dash pattern length (10 dash + 10 gap) * 2 */
+    }
+}
+/* Reverse animation for flows towards left/top */
+.energy-path.reverse {
+    animation-direction: reverse;
+}
+
+/* Color coding for flow paths (applied by JS) */
+.flow-solar { stroke: #f59e0b; } /* Amber */
+.flow-grid-import { stroke: #ef4444; } /* Red */
+.flow-grid-export { stroke: #10b981; } /* Emerald */
+.flow-battery-charge { stroke: #3b82f6; } /* Blue */
+.flow-battery-discharge { stroke: #a855f7; } /* Purple */
+/* .flow-home { stroke: #6b7280; } /* Gray - Not typically used for paths */
+.flow-ev-charge { stroke: #22c55e; } /* Green */
+
+/* Active Sidebar Link */
+.sidebar-link-active { background-color: #4b5563; color: white; }
+
+/* Hide/Show Content Sections */
+.content-section { display: none; }
+.content-section.active { display: block; }

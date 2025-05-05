@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Home Assistant Prototype - Energy Optimization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Custom Styles */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            background-color: #f0f2f5; /* Light grey background */
+        }
+        /* Scrollbar styling */
+        #chat-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-area::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #chat-area::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 10px;
+        }
+        #chat-area::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* slate-400 */
+        }
+        .message {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #94a3b8; /* slate-400 */
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+        /* Ensure buttons have good touch targets */
+        .action-button {
+            min-width: 80px; /* Minimum width */
+            min-height: 40px; /* Minimum height */
+        }
+        /* Simple chart placeholder */
+        .chart-placeholder {
+            width: 100%;
+            height: 150px;
+            background-color: #e2e8f0; /* slate-200 */
+            border: 1px dashed #94a3b8; /* slate-400 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b; /* slate-500 */
+            font-size: 0.8rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            margin-top: 0.75rem; /* mt-3 */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-green-100 via-teal-100 to-blue-100">
+
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col h-[85vh] md:h-[70vh]">
+
+        <header class="bg-gradient-to-r from-green-600 to-teal-600 p-4 text-white flex items-center justify-between shadow-md">
+            <h1 class="text-xl font-semibold flex items-center">
+                <i class="fas fa-leaf mr-3 text-2xl"></i> AI Energy Assistant
+            </h1>
+            <div class="w-3 h-3 bg-yellow-300 rounded-full animate-pulse"></div> </header>
+
+        <div id="chat-area" class="flex-1 p-4 md:p-6 space-y-4 overflow-y-auto bg-gray-50">
+            <div class="message flex">
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                        <i class="fas fa-leaf text-sm"></i> </div>
+                </div>
+                <div class="bg-teal-100 text-gray-800 p-3 rounded-lg rounded-tl-none max-w-xs md:max-w-md shadow"> <p class="text-sm">Hello! I can help optimize your home's energy usage. Try asking "Optimize my energy usage" or "Show energy report".</p>
+                </div>
+            </div>
+            </div>
+
+        <div id="typing-indicator" class="p-4 md:p-6 hidden">
+             <div class="flex">
+                <div class="flex-shrink-0 mr-3">
+                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                        <i class="fas fa-leaf text-sm"></i>
+                    </div>
+                </div>
+                <div class="bg-teal-100 text-gray-800 p-3 rounded-lg rounded-tl-none shadow inline-block"> <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="p-4 md:p-6 border-t border-gray-200 bg-white">
+            <div class="flex items-center space-x-3">
+                <input type="text" id="user-input" placeholder="Type your message..." class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150 text-sm"> <button id="send-button" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-5 rounded-lg transition duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center justify-center action-button"> <i class="fas fa-paper-plane mr-2"></i> Send
+                </button>
+            </div>
+        </footer>
+
+    </div>
+
+    <script>
+        const chatArea = document.getElementById('chat-area');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        // --- Event Listeners ---
+        sendButton.addEventListener('click', handleUserInput);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleUserInput();
+            }
+        });
+
+        // --- Main Function to Handle User Input ---
+        function handleUserInput() {
+            const messageText = userInput.value.trim();
+            if (!messageText) return; // Don't send empty messages
+
+            // Display user message
+            displayMessage(messageText, 'user');
+
+            // Clear input field
+            userInput.value = '';
+
+            // Disable input while AI is "thinking"
+            toggleInput(false);
+
+            // Show typing indicator
+            showTypingIndicator(true);
+
+            // Simulate AI response based on energy optimization
+            simulateAIResponse(messageText.toLowerCase());
+        }
+
+        // --- Display Messages ---
+        function displayMessage(text, sender, options = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'flex');
+
+            // Default AI style (now energy-themed)
+            let bubbleClass = 'bg-teal-100 text-gray-800 p-3 rounded-lg rounded-tl-none max-w-xs md:max-w-md shadow';
+            let iconHtml = `
+                <div class="flex-shrink-0 mr-3">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                        <i class="fas fa-leaf text-sm"></i>
+                    </div>
+                </div>`;
+
+            // User style (remains consistent)
+            if (sender === 'user') {
+                bubbleClass = 'bg-blue-100 text-gray-800 p-3 rounded-lg rounded-br-none max-w-xs md:max-w-md shadow'; // Kept user bubble blue for contrast
+                messageDiv.classList.add('justify-end');
+                iconHtml = `
+                <div class="flex-shrink-0 ml-3 order-2">
+                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                        <i class="fas fa-user text-sm"></i>
+                    </div>
+                </div>`;
+            }
+
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add(...bubbleClass.split(' '));
+            contentDiv.innerHTML = `<p class="text-sm">${text}</p>`; // Use innerHTML for potential icons/formatting
+
+            // Add action buttons if provided
+            if (options && options.buttons) {
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('mt-3', 'flex', 'flex-wrap', 'gap-2');
+                options.buttons.forEach(buttonInfo => {
+                    const button = document.createElement('button');
+                    button.textContent = buttonInfo.text;
+                    // Style buttons for energy theme
+                    button.classList.add('action-button', 'bg-white', 'hover:bg-gray-100', 'text-teal-600', 'font-semibold', 'py-1', 'px-3', 'border', 'border-teal-300', 'rounded-lg', 'text-xs', 'transition', 'duration-150');
+                    button.addEventListener('click', () => {
+                        displayMessage(`Selected: "${buttonInfo.text}"`, 'user');
+                        buttonInfo.action();
+                        buttonContainer.remove();
+                        toggleInput(false);
+                        showTypingIndicator(true);
+                    });
+                    buttonContainer.appendChild(button);
+                });
+                contentDiv.appendChild(buttonContainer);
+            }
+
+             // Add chart placeholder if specified
+            if (options && options.showChart) {
+                 const chartDiv = document.createElement('div');
+                 chartDiv.classList.add('chart-placeholder');
+                 chartDiv.textContent = 'Simulated Energy Usage Chart';
+                 contentDiv.appendChild(chartDiv);
+            }
+
+
+            if (sender === 'user') {
+                messageDiv.appendChild(contentDiv);
+                messageDiv.innerHTML += iconHtml;
+            } else {
+                messageDiv.innerHTML += iconHtml;
+                messageDiv.appendChild(contentDiv);
+            }
+
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        // --- Simulate AI Responses (Energy Optimization Logic) ---
+        function simulateAIResponse(userMessage) {
+            let delay = 1500 + Math.random() * 1500; // Simulate thinking time
+
+            setTimeout(() => {
+                showTypingIndicator(false);
+
+                if (userMessage.includes("optimize") && userMessage.includes("energy")) {
+                    displayMessage("Okay, let me analyze your current energy usage patterns...", 'ai');
+                    simulateEnergyAnalysis();
+                } else if (userMessage.includes("show") && (userMessage.includes("energy report") || userMessage.includes("usage"))) {
+                     displayMessage("Fetching your latest energy report...", 'ai');
+                     showUsageReport();
+                } else if (userMessage.includes("hello") || userMessage.includes("hi")) {
+                     displayMessage("Hello! Ready to optimize your energy usage or view reports?", 'ai');
+                     toggleInput(true);
+                } else if (userMessage.includes("thank")) {
+                     displayMessage("You're welcome! Happy to help save energy.", 'ai');
+                     toggleInput(true);
+                }
+                 else {
+                    // Default response
+                    displayMessage("I can help with energy optimization. Try asking 'Optimize my energy usage' or 'Show energy report'.", 'ai');
+                    toggleInput(true); // Re-enable input
+                }
+            }, delay);
+        }
+
+        // --- Simulate Energy Optimization Steps ---
+        function simulateEnergyAnalysis() {
+            let delay = 2500 + Math.random() * 1500; // Longer delay for "analysis"
+            showTypingIndicator(true);
+
+            setTimeout(() => {
+                showTypingIndicator(false);
+                displayMessage("Analysis complete. I've identified a few potential optimizations based on your typical usage:", 'ai');
+                presentOptimizationOptions();
+            }, delay);
+        }
+
+        function presentOptimizationOptions() {
+             let delay = 1000 + Math.random() * 500;
+             showTypingIndicator(true); // Briefly show typing
+
+             setTimeout(() => {
+                 showTypingIndicator(false);
+                 displayMessage("Which optimization would you like to apply?", 'ai', {
+                    buttons: [
+                        { text: "Adjust Thermostat Schedule (Save ~8%)", action: () => applyOptimization("Thermostat Schedule") },
+                        { text: "Shift Dishwasher to Off-Peak (Save ~3%)", action: () => applyOptimization("Dishwasher Timing") },
+                        { text: "Dim Living Room Lights (Save ~2%)", action: () => applyOptimization("Lighting Adjustment") },
+                        { text: "Do Nothing", action: () => cancelOptimization() }
+                    ]
+                });
+                 // Input remains disabled until a choice is made
+             }, delay);
+        }
+
+        function applyOptimization(optimizationChoice) {
+             let delay = 2000 + Math.random() * 1000; // Simulate applying settings
+             showTypingIndicator(true);
+
+             setTimeout(() => {
+                 showTypingIndicator(false);
+                 displayMessage(`<i class="fas fa-check-circle text-green-500 mr-2"></i>Okay, I've applied the "${optimizationChoice}" optimization. Your settings have been updated (simulated).`, 'ai');
+                 displayMessage("Would you like to explore other optimizations or view your updated report?", 'ai');
+                 toggleInput(true); // Re-enable input
+             }, delay);
+        }
+
+         function cancelOptimization() {
+             let delay = 500;
+             showTypingIndicator(true);
+
+             setTimeout(() => {
+                 showTypingIndicator(false);
+                 displayMessage("Okay, no changes made. Let me know if you change your mind!", 'ai');
+                 toggleInput(true); // Re-enable input
+             }, delay);
+         }
+
+         function showUsageReport() {
+            let delay = 1500 + Math.random() * 1000;
+            showTypingIndicator(true);
+
+            setTimeout(() => {
+                showTypingIndicator(false);
+                // Simulate showing a report with a placeholder chart
+                displayMessage("Here's your energy usage report for the last week. Peak usage occurs around 7 PM.", 'ai', { showChart: true });
+                displayMessage("Any specific area you'd like to focus on for optimization?", 'ai');
+                toggleInput(true); // Re-enable input
+            }, delay);
+         }
+
+
+        // --- Utility Functions ---
+        function toggleInput(enabled) {
+            userInput.disabled = !enabled;
+            sendButton.disabled = !enabled;
+            sendButton.classList.toggle('opacity-50', !enabled);
+            sendButton.classList.toggle('cursor-not-allowed', !enabled);
+        }
+
+        function showTypingIndicator(show) {
+            typingIndicator.style.display = show ? 'block' : 'none';
+             if (show) {
+                 chatArea.scrollTop = chatArea.scrollHeight; // Scroll down when indicator appears
+             }
+        }
+
+        // --- Initial Setup ---
+        // Ensure input is enabled initially
+        toggleInput(true);
+
+    </script>
+
+</body>
+</html>

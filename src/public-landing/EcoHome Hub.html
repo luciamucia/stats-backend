@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Home Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        /* AI Assistant Panel Styles */
+        #ai-assistant-panel { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; z-index: 50; }
+        #ai-assistant-panel.hidden { transform: translateX(100%); opacity: 0; pointer-events: none; }
+
+        /* Scrollbar styling for AI chat */
+        #ai-chat-area::-webkit-scrollbar { width: 6px; }
+        #ai-chat-area::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        #ai-chat-area::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        #ai-chat-area::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* AI Message Fade-in Animation */
+        .ai-message { opacity: 0; transform: translateY(10px); animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+
+        /* AI Typing Indicator */
+        .ai-typing-indicator span { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: #94a3b8; margin: 0 2px; animation: bounce 1.4s infinite ease-in-out both; }
+        .ai-typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .ai-typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+
+        /* Button Touch Targets */
+        .action-button { min-width: 80px; min-height: 40px; }
+        .ai-action-button { min-width: 60px; min-height: 30px; padding: 0.25rem 0.75rem; font-size: 0.75rem; }
+
+        /* Chart Placeholder */
+        .chart-placeholder { width: 100%; height: 150px; background-color: #e2e8f0; border: 1px dashed #94a3b8; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.8rem; border-radius: 0.5rem; margin-top: 0.75rem; }
+        .ai-chart-placeholder { height: 100px; font-size: 0.7rem; }
+
+        /* Dashboard card styling */
+        .dashboard-card { background-color: white; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); padding: 1.5rem; transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .dashboard-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+
+        /* Energy Flow Styles */
+        .energy-flow-container {
+            position: relative;
+            width: 100%;
+            max-width: 550px; /* Adjusted max width */
+            margin: 2rem auto;
+            height: 280px; /* Adjusted height */
+            /* border: 1px dashed red; /* For debugging layout */
+        }
+        .energy-node {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 80px; /* Give nodes some width */
+        }
+        .energy-node i {
+            font-size: 2rem; /* Slightly smaller icons */
+            margin-bottom: 0.3rem;
+            padding: 0.8rem; /* Adjusted padding */
+            border-radius: 50%;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 50px; /* Fixed icon background size */
+            height: 50px; /* Fixed icon background size */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .energy-node span { font-weight: 500; color: #4b5563; font-size: 0.8rem; } /* Smaller text */
+        .energy-value { font-weight: 600; color: #1f2937; font-size: 0.9rem; margin-top: 0.1rem; } /* Smaller text */
+
+        /* Node Positions - Adjusted for better spacing */
+        #node-solar { top: 0; left: 50%; transform: translateX(-50%); }
+        #node-grid { top: 50%; right: 0; transform: translateY(-50%); }
+        #node-home { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #node-battery { top: 50%; left: 0; transform: translateY(-50%); }
+
+        /* Energy Flow Line Base Style */
+        .energy-line {
+            position: absolute;
+            background-color: #d1d5db; /* Lighter gray default */
+            height: 4px;
+            border-radius: 2px;
+            z-index: -1; /* Behind nodes */
+            display: none; /* Hide lines by default, show with JS */
+        }
+        .energy-line.active {
+            display: block; /* Show active lines */
+        }
+
+        /* Energy Flow Animation */
+        .flow-dot-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0; /* Above lines, behind nodes */
+            pointer-events: none; /* Allow clicks through */
+            overflow: visible; /* Allow dots to animate fully */
+            display: none; /* Hide dots by default */
+        }
+         .flow-dot-container.active {
+            display: block; /* Show active dots */
+        }
+
+        .flow-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: currentColor; /* Inherits color from parent */
+            opacity: 0;
+            /* offset-path will be set by JS */
+            animation: move 2.5s linear infinite; /* Slower animation */
+        }
+        @keyframes move {
+            0% { opacity: 0; offset-distance: 0%; }
+            10% { opacity: 1; } /* Fade in */
+            90% { opacity: 1; }
+            100% { opacity: 0; offset-distance: 100%; } /* Fade out */
+        }
+        /* Add delays for multiple dots */
+        .flow-dot:nth-child(2) { animation-delay: 0.6s; }
+        .flow-dot:nth-child(3) { animation-delay: 1.2s; }
+        .flow-dot:nth-child(4) { animation-delay: 1.8s; }
+
+        /* Color coding for flow */
+        .flow-solar { color: #f59e0b; } /* Amber */
+        .flow-grid-import { color: #ef4444; } /* Red */
+        .flow-grid-export { color: #10b981; } /* Emerald */
+        .flow-battery-charge { color: #3b82f6; } /* Blue */
+        .flow-battery-discharge { color: #a855f7; } /* Purple */
+        .flow-home { color: #6b7280; } /* Gray */
+
+        /* Active Sidebar Link */
+        .sidebar-link-active { background-color: #4b5563; color: white; }
+
+        /* Hide/Show Content Sections */
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <aside class="w-16 md:w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white flex flex-col transition-all duration-300 flex-shrink-0">
+        <div class="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-gray-700 flex-shrink-0">
+            <i class="fas fa-home text-2xl text-blue-400"></i>
+            <span class="hidden md:inline ml-3 text-lg font-semibold">Smart Home</span>
+        </div>
+        <nav id="sidebar-nav" class="flex-1 mt-6 px-2 md:px-4 space-y-2 overflow-y-auto">
+            <a href="#overview" data-section="overview-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-tachometer-alt w-6 text-center md:mr-3"></i><span class="hidden md:inline">Overview</span>
+            </a>
+            <a href="#living-room" data-section="living-room-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-couch w-6 text-center md:mr-3"></i><span class="hidden md:inline">Living Room</span>
+            </a>
+             <a href="#kitchen" data-section="kitchen-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-utensils w-6 text-center md:mr-3"></i><span class="hidden md:inline">Kitchen</span>
+            </a>
+            <a href="#bedroom" data-section="bedroom-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-bed w-6 text-center md:mr-3"></i><span class="hidden md:inline">Bedroom</span>
+            </a>
+            <a href="#energy" data-section="energy-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-bolt w-6 text-center md:mr-3"></i><span class="hidden md:inline">Energy</span>
+            </a>
+             <a href="#security" data-section="security-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-shield-alt w-6 text-center md:mr-3"></i><span class="hidden md:inline">Security</span>
+            </a>
+             <a href="#settings" data-section="settings-section" class="sidebar-link flex items-center justify-center md:justify-start p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-150">
+                <i class="fas fa-cog w-6 text-center md:mr-3"></i><span class="hidden md:inline">Settings</span>
+            </a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 bg-white shadow-md flex items-center justify-between px-4 md:px-6 border-b flex-shrink-0">
+            <h1 id="main-header-title" class="text-xl md:text-2xl font-semibold text-gray-700">Home Overview</h1>
+            <div>
+                <button id="ai-assistant-trigger" class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center action-button">
+                    <i class="fas fa-leaf mr-2"></i><span class="hidden sm:inline">Energy AI</span>
+                </button>
+            </div>
+        </header>
+
+        <main id="main-content" class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-6 lg:p-8">
+
+            <div id="overview-section" class="content-section active">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-thermometer-half mr-2 text-orange-500"></i> Living Room Thermostat</h2>
+                        <p class="text-3xl font-bold text-gray-800 mb-3">21<span class="text-xl">°C</span></p>
+                        <div class="flex space-x-2">
+                            <button class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md transition"><i class="fas fa-chevron-down"></i></button>
+                            <button class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md transition"><i class="fas fa-chevron-up"></i></button>
+                            <button class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-md transition">Mode: Auto</button>
+                        </div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-lightbulb mr-2 text-yellow-500"></i> Kitchen Lights</h2>
+                        <p class="text-sm text-gray-500 mb-3">Status: <span class="font-medium text-green-600">On</span> | Brightness: 75%</p>
+                         <div class="flex space-x-2">
+                            <button class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md transition">Turn Off</button>
+                            <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition">Adjust</button>
+                        </div>
+                    </div>
+                     <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-plug mr-2 text-purple-500"></i> Smart Plug (Desk Lamp)</h2>
+                        <p class="text-sm text-gray-500 mb-3">Status: <span class="font-medium text-gray-600">Off</span> | Energy: 0.1 kWh today</p>
+                         <div class="flex space-x-2">
+                             <button class="text-xs bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-md transition">Turn On</button>
+                             <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition">Schedule</button>
+                        </div>
+                    </div>
+                     <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-video mr-2 text-red-500"></i> Front Door Camera</h2>
+                        <p class="text-sm text-gray-500 mb-3">Status: <span class="font-medium text-blue-600">Online</span> | Last Event: 10 min ago</p>
+                         <div class="flex space-x-2">
+                            <button class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-md transition">View Live</button>
+                            <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition">Events</button>
+                        </div>
+                    </div>
+                     <div class="dashboard-card">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-2 flex items-center"><i class="fas fa-wind mr-2 text-blue-400"></i> Bedroom Air Purifier</h2>
+                        <p class="text-sm text-gray-500 mb-3">Status: <span class="font-medium text-green-600">On</span> | Mode: Auto</p>
+                         <div class="flex space-x-2">
+                             <button class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md transition">Turn Off</button>
+                             <button class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-md transition">Mode</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="energy-section" class="content-section">
+                <div class="bg-white rounded-xl shadow-lg p-4 md:p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Live Energy Flow</h2>
+                    <div id="energy-flow" class="energy-flow-container">
+                        <div id="node-solar" class="energy-node">
+                            <i class="fas fa-solar-panel text-yellow-500"></i>
+                            <span>Solar</span>
+                            <span id="solar-value" class="energy-value">0.0 kW</span>
+                        </div>
+                        <div id="node-grid" class="energy-node">
+                            <i class="fas fa-broadcast-tower text-gray-500"></i> <span>Grid</span>
+                            <span id="grid-value" class="energy-value">0.0 kW</span>
+                        </div>
+                        <div id="node-home" class="energy-node">
+                            <i class="fas fa-home text-green-500"></i>
+                            <span>Home</span>
+                            <span id="home-value" class="energy-value">0.0 kW</span>
+                        </div>
+                         <div id="node-battery" class="energy-node">
+                            <i class="fas fa-battery-half text-gray-500"></i> <span>Battery</span>
+                             <span id="battery-value" class="energy-value">0.0 kW</span>
+                             <span id="battery-soc" class="text-xs text-gray-500 mt-1">--%</span>
+                        </div>
+
+                        <div id="line-solar-home" class="energy-line"></div>
+                        <div id="line-grid-home" class="energy-line"></div>
+                        <div id="line-battery-home" class="energy-line"></div>
+                        <div id="dots-solar-home" class="flow-dot-container flow-solar">
+                            <div class="flow-dot"></div> <div class="flow-dot"></div> <div class="flow-dot"></div>
+                        </div>
+                         <div id="dots-grid-home" class="flow-dot-container flow-grid-import"> <div class="flow-dot"></div> <div class="flow-dot"></div> <div class="flow-dot"></div>
+                        </div>
+                         <div id="dots-battery-home" class="flow-dot-container flow-battery-charge"> <div class="flow-dot"></div> <div class="flow-dot"></div> <div class="flow-dot"></div>
+                        </div>
+                        </div>
+                     <p class="text-center text-xs text-gray-500 mt-4">Live data simulation.</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-4 md:p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Energy Statistics</h2>
+                    <div class="mb-4 flex justify-center space-x-2">
+                        <button class="time-period-btn active bg-teal-600 text-white px-4 py-1 rounded-md text-sm" data-period="today">Today</button>
+                        <button class="time-period-btn bg-gray-200 text-gray-700 px-4 py-1 rounded-md text-sm hover:bg-gray-300" data-period="week">Last Week</button>
+                        <button class="time-period-btn bg-gray-200 text-gray-700 px-4 py-1 rounded-md text-sm hover:bg-gray-300" data-period="month">Last Month</button>
+                    </div>
+                    <div id="stats-display">
+                        </div>
+                </div>
+            </div>
+
+            <div id="living-room-section" class="content-section"><p class="text-gray-600">Living Room content goes here...</p></div>
+            <div id="kitchen-section" class="content-section"><p class="text-gray-600">Kitchen content goes here...</p></div>
+            <div id="bedroom-section" class="content-section"><p class="text-gray-600">Bedroom content goes here...</p></div>
+            <div id="security-section" class="content-section"><p class="text-gray-600">Security content goes here...</p></div>
+            <div id="settings-section" class="content-section"><p class="text-gray-600">Settings content goes here...</p></div>
+
+        </main>
+    </div>
+
+    <div id="ai-assistant-panel" class="fixed top-0 right-0 h-full w-full max-w-md md:max-w-lg bg-white shadow-2xl flex flex-col transform translate-x-full hidden">
+        <header class="bg-gradient-to-r from-green-600 to-teal-600 p-4 text-white flex items-center justify-between shadow-md flex-shrink-0">
+            <h1 class="text-lg font-semibold flex items-center"><i class="fas fa-leaf mr-2"></i> AI Energy Assistant</h1>
+            <button id="ai-close-button" class="text-white hover:text-gray-200 focus:outline-none text-xl"><i class="fas fa-times"></i></button>
+        </header>
+        <div id="ai-chat-area" class="flex-1 p-4 space-y-4 overflow-y-auto bg-gray-50">
+             <div class="ai-message flex"> <div class="flex-shrink-0 mr-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold"><i class="fas fa-leaf text-sm"></i></div></div> <div class="bg-teal-100 text-gray-800 p-3 rounded-lg rounded-tl-none max-w-xs shadow"><p class="text-sm">Hello! I can help optimize your home's energy usage. Try asking "Optimize energy" or "Show energy report".</p></div> </div>
+        </div>
+        <div id="ai-typing-indicator" class="p-4 hidden flex-shrink-0"> <div class="flex"><div class="flex-shrink-0 mr-3"><div class="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-teal-500 flex items-center justify-center text-white font-bold"><i class="fas fa-leaf text-sm"></i></div></div><div class="bg-teal-100 text-gray-800 p-3 rounded-lg rounded-tl-none shadow inline-block"><div class="ai-typing-indicator"><span></span><span></span><span></span></div></div></div></div>
+        <footer class="p-4 border-t border-gray-200 bg-white flex-shrink-0"> <div class="flex items-center space-x-3"> <input type="text" id="ai-user-input" placeholder="Ask about energy..." class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition duration-150 text-sm"> <button id="ai-send-button" class="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-150 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 flex items-center justify-center action-button"><i class="fas fa-paper-plane text-sm"></i></button> </div> </footer>
+    </div>
+
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden transition-opacity duration-300"></div>
+
+    <script>
+        // --- DOM Elements ---
+        const aiAssistantTrigger = document.getElementById('ai-assistant-trigger');
+        const aiAssistantPanel = document.getElementById('ai-assistant-panel');
+        const aiCloseButton = document.getElementById('ai-close-button');
+        const overlay = document.getElementById('overlay');
+        const aiChatArea = document.getElementById('ai-chat-area');
+        const aiUserInput = document.getElementById('ai-user-input');
+        const aiSendButton = document.getElementById('ai-send-button');
+        const aiTypingIndicator = document.getElementById('ai-typing-indicator');
+        const sidebarNav = document.getElementById('sidebar-nav');
+        const mainContent = document.getElementById('main-content');
+        const mainHeaderTitle = document.getElementById('main-header-title');
+        const timePeriodButtons = document.querySelectorAll('.time-period-btn');
+        const statsDisplay = document.getElementById('stats-display');
+        const energyFlowContainer = document.getElementById('energy-flow');
+
+        // --- Initial State ---
+        let activeSection = 'overview-section';
+
+        // --- Sidebar Navigation ---
+        sidebarNav.addEventListener('click', (e) => {
+            const link = e.target.closest('.sidebar-link');
+            if (!link) return;
+            e.preventDefault();
+            const sectionId = link.dataset.section;
+            if (!sectionId || sectionId === activeSection) return;
+
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('sidebar-link-active', 'bg-gray-700', 'text-white'));
+            link.classList.add('sidebar-link-active', 'bg-gray-700', 'text-white');
+
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+            const newSection = document.getElementById(sectionId);
+            if (newSection) {
+                newSection.classList.add('active');
+                activeSection = sectionId;
+                mainHeaderTitle.textContent = link.querySelector('span').textContent + (sectionId === 'overview-section' ? ' Overview' : '');
+                // Recalculate flow on tab switch if energy tab is active
+                if (activeSection === 'energy-section') {
+                    setTimeout(updateEnergyFlowVisualization, 50); // Delay slightly for layout reflow
+                }
+            } else {
+                 console.warn(`Section with ID ${sectionId} not found. Falling back to overview.`);
+                 document.getElementById('overview-section').classList.add('active');
+                 document.querySelector('[data-section="overview-section"]').classList.add('sidebar-link-active', 'bg-gray-700', 'text-white');
+                 activeSection = 'overview-section';
+                 mainHeaderTitle.textContent = 'Home Overview';
+            }
+        });
+
+        function setInitialActiveLink() {
+            const initialLink = document.querySelector(`.sidebar-link[data-section="${activeSection}"]`);
+            if (initialLink) initialLink.classList.add('sidebar-link-active', 'bg-gray-700', 'text-white');
+            document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+            const initialSection = document.getElementById(activeSection);
+            if (initialSection) initialSection.classList.add('active');
+        }
+
+        // --- Energy Flow Visualization Logic ---
+        function updateEnergyFlowVisualization(liveData = { solar: 4.7, grid: -0.5, battery: -2.0, home: 3.2, batterySoc: 75 }) {
+             if (!energyFlowContainer) return; // Exit if container not found
+
+            const nodes = {
+                solar: document.getElementById('node-solar'),
+                grid: document.getElementById('node-grid'),
+                home: document.getElementById('node-home'),
+                battery: document.getElementById('node-battery')
+            };
+
+            const lines = {
+                solarHome: document.getElementById('line-solar-home'),
+                gridHome: document.getElementById('line-grid-home'),
+                batteryHome: document.getElementById('line-battery-home')
+            };
+
+            const dots = {
+                solarHome: document.getElementById('dots-solar-home'),
+                gridHome: document.getElementById('dots-grid-home'),
+                batteryHome: document.getElementById('dots-battery-home')
+            };
+
+            // --- Helper function to get center coordinates ---
+            function getNodeCenter(node) {
+                if (!node) return { x: 0, y: 0 };
+                // Use offsetLeft/Top relative to the container
+                const x = node.offsetLeft + node.offsetWidth / 2;
+                const y = node.offsetTop + node.offsetHeight / 2;
+                return { x, y };
+            }
+
+            // --- Helper function to draw line and set dot path ---
+            function drawLine(lineElem, dotContainer, startNode, endNode, flowClass, reverse = false) {
+                if (!lineElem || !dotContainer || !startNode || !endNode) return;
+
+                const start = getNodeCenter(startNode);
+                const end = getNodeCenter(endNode);
+                const dx = end.x - start.x;
+                const dy = end.y - start.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Angle in degrees
+
+                // Position and rotate the line
+                lineElem.style.width = `${length}px`;
+                lineElem.style.left = `${start.x}px`;
+                lineElem.style.top = `${start.y - 2}px`; // Center line vertically (height is 4px)
+                lineElem.style.transform = `rotate(${angle}deg)`;
+                lineElem.style.transformOrigin = 'left center';
+                lineElem.className = `energy-line active ${flowClass}`; // Set color via class
+
+                // Set offset-path for dots
+                const pathString = `path('M ${start.x} ${start.y} L ${end.x} ${end.y}')`;
+                dotContainer.style.offsetPath = pathString;
+                dotContainer.className = `flow-dot-container active ${flowClass}`; // Apply color class
+
+                // Set animation direction
+                const dotElements = dotContainer.querySelectorAll('.flow-dot');
+                dotElements.forEach(dot => {
+                    dot.style.animationDirection = reverse ? 'reverse' : 'normal';
+                });
+            }
+
+            // --- Reset lines and dots ---
+            Object.values(lines).forEach(line => line?.classList.remove('active'));
+            Object.values(dots).forEach(dot => dot?.classList.remove('active'));
+
+            // --- Update Node Values ---
+            document.getElementById('solar-value').textContent = `${Math.abs(liveData.solar).toFixed(1)} kW`;
+            document.getElementById('home-value').textContent = `${Math.abs(liveData.home).toFixed(1)} kW`;
+            document.getElementById('battery-soc').textContent = `${liveData.batterySoc}%`;
+
+            // Grid value and icon/color
+            const gridValueElem = document.getElementById('grid-value');
+            const gridIconElem = document.querySelector('#node-grid i');
+            if (liveData.grid < 0) {
+                gridValueElem.textContent = `Import ${Math.abs(liveData.grid).toFixed(1)} kW`;
+                gridIconElem.className = 'fas fa-broadcast-tower text-red-500'; // Import color
+            } else if (liveData.grid > 0) {
+                gridValueElem.textContent = `Export ${liveData.grid.toFixed(1)} kW`;
+                 gridIconElem.className = 'fas fa-broadcast-tower text-green-500'; // Export color
+            } else {
+                 gridValueElem.textContent = `0.0 kW`;
+                 gridIconElem.className = 'fas fa-broadcast-tower text-gray-500'; // Neutral color
+            }
+
+             // Battery value and icon/color
+            const batteryValueElem = document.getElementById('battery-value');
+            const batteryIconElem = document.querySelector('#node-battery i');
+             if (liveData.battery < 0) {
+                batteryValueElem.textContent = `Charging ${Math.abs(liveData.battery).toFixed(1)} kW`;
+                batteryIconElem.className = `fas ${getBatteryIconClass(liveData.batterySoc)} text-blue-500`; // Charging color
+            } else if (liveData.battery > 0) {
+                batteryValueElem.textContent = `Discharge ${liveData.battery.toFixed(1)} kW`;
+                 batteryIconElem.className = `fas ${getBatteryIconClass(liveData.batterySoc)} text-purple-500`; // Discharging color
+            } else {
+                 batteryValueElem.textContent = `0.0 kW`;
+                 batteryIconElem.className = `fas ${getBatteryIconClass(liveData.batterySoc)} text-gray-500`; // Neutral color
+            }
+
+
+            // --- Draw Active Flows ---
+            // Solar to Home
+            if (liveData.solar > 0) { // Assuming solar only produces
+                 // Determine where solar power goes (simplified: assumes home first, then battery/grid)
+                 const solarToHome = Math.min(liveData.solar, liveData.home); // Simplified logic
+                 if (solarToHome > 0.05) { // Threshold to draw line
+                    drawLine(lines.solarHome, dots.solarHome, nodes.solar, nodes.home, 'flow-solar');
+                 }
+                 // Add logic here for Solar -> Battery or Solar -> Grid if needed
+            }
+
+            // Grid to Home (Import) or Home to Grid (Export)
+            if (liveData.grid < -0.05) { // Import
+                 drawLine(lines.gridHome, dots.gridHome, nodes.grid, nodes.home, 'flow-grid-import', true); // Reverse animation
+            } else if (liveData.grid > 0.05) { // Export
+                 drawLine(lines.gridHome, dots.gridHome, nodes.home, nodes.grid, 'flow-grid-export');
+            }
+
+            // Battery to Home (Discharge) or Home to Battery (Charge)
+            if (liveData.battery > 0.05) { // Discharge
+                 drawLine(lines.batteryHome, dots.batteryHome, nodes.battery, nodes.home, 'flow-battery-discharge');
+            } else if (liveData.battery < -0.05) { // Charge
+                 drawLine(lines.batteryHome, dots.batteryHome, nodes.home, nodes.battery, 'flow-battery-charge', true); // Reverse animation
+            }
+        }
+
+        // Helper to get battery icon class based on State of Charge (SoC)
+        function getBatteryIconClass(soc) {
+            if (soc > 85) return 'fa-battery-full';
+            if (soc > 60) return 'fa-battery-three-quarters';
+            if (soc > 35) return 'fa-battery-half';
+            if (soc > 10) return 'fa-battery-quarter';
+            return 'fa-battery-empty';
+        }
+
+
+        // --- Energy Statistics ---
+        const energyData = {
+            // Simulated data
+            today: { consumption: 15.2, production: 25.5, fromGrid: 2.1, toGrid: 12.4, batteryCharged: 8.0, batteryDischarged: 3.0, chartLabel: 'Hourly Usage (Today)', batterySoc: 75, live: { solar: 4.7, grid: -0.5, battery: -2.0, home: 3.2, batterySoc: 75 } },
+            week: { consumption: 105.8, production: 180.3, fromGrid: 15.5, toGrid: 90.1, batteryCharged: 55.0, batteryDischarged: 21.0, chartLabel: 'Daily Usage (Last Week)', batterySoc: 60, live: { solar: 0.1, grid: 1.5, battery: 0.0, home: 1.6, batterySoc: 60 } }, // Different live example
+            month: { consumption: 450.2, production: 750.9, fromGrid: 65.0, toGrid: 365.7, batteryCharged: 230.0, batteryDischarged: 90.0, chartLabel: 'Daily Usage (Last Month)', batterySoc: 90, live: { solar: 0.0, grid: -1.0, battery: 1.5, home: 0.5, batterySoc: 90 } } // Different live example
+        };
+
+        function displayEnergyStats(period) {
+            const data = energyData[period];
+            if (!data) return;
+
+            statsDisplay.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200"> <h3 class="text-md font-semibold text-gray-600 mb-2 flex items-center"><i class="fas fa-home mr-2 text-green-500"></i>Consumption</h3> <p class="text-2xl font-bold text-gray-800">${data.consumption.toFixed(1)} <span class="text-lg font-normal">kWh</span></p> <p class="text-xs text-gray-500 mt-1">From Grid: ${data.fromGrid.toFixed(1)} kWh</p> </div>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200"> <h3 class="text-md font-semibold text-gray-600 mb-2 flex items-center"><i class="fas fa-solar-panel mr-2 text-yellow-500"></i>Production</h3> <p class="text-2xl font-bold text-gray-800">${data.production.toFixed(1)} <span class="text-lg font-normal">kWh</span></p> <p class="text-xs text-gray-500 mt-1">To Grid: ${data.toGrid.toFixed(1)} kWh</p> </div>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200"> <h3 class="text-md font-semibold text-gray-600 mb-2 flex items-center"><i class="fas fa-battery-half mr-2 text-blue-500"></i>Battery</h3> <p class="text-lg font-semibold text-gray-800">Charged: ${data.batteryCharged.toFixed(1)} kWh</p> <p class="text-lg font-semibold text-gray-800">Discharged: ${data.batteryDischarged.toFixed(1)} kWh</p> </div>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200"> <h3 class="text-md font-semibold text-gray-600 mb-2 flex items-center"><i class="fas fa-chart-line mr-2 text-indigo-500"></i>Summary</h3> <p class="text-lg font-semibold text-gray-800">Net Grid: ${(data.toGrid - data.fromGrid).toFixed(1)} kWh ${data.toGrid > data.fromGrid ? '(Export)' : '(Import)'}</p> <p class="text-lg font-semibold text-gray-800">Self-Sufficiency: ${data.consumption > 0 ? Math.min(100, ((data.production - data.toGrid + data.batteryDischarged) / data.consumption) * 100).toFixed(0) : 0}%</p> </div>
+                </div>
+                <div class="chart-placeholder"> ${data.chartLabel} - Chart Placeholder </div>
+            `;
+
+            // Update the live flow visualization based on the selected period's *example* live data
+            // In a real app, live data would update independently via WebSocket or polling.
+             if (data.live) {
+                 updateEnergyFlowVisualization(data.live);
+             }
+        }
+
+        timePeriodButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const period = button.dataset.period;
+                timePeriodButtons.forEach(btn => {
+                    btn.classList.remove('active', 'bg-teal-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                });
+                button.classList.add('active', 'bg-teal-600', 'text-white');
+                button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                displayEnergyStats(period);
+            });
+        });
+
+        // --- AI Panel Toggle ---
+        function openAIAssistant() { /* ... remains the same ... */
+            aiAssistantPanel.classList.remove('hidden', 'translate-x-full', 'opacity-0', 'pointer-events-none');
+            overlay.classList.remove('hidden');
+        }
+        function closeAIAssistant() { /* ... remains the same ... */
+            aiAssistantPanel.classList.add('translate-x-full', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => { if (aiAssistantPanel.classList.contains('translate-x-full')) { aiAssistantPanel.classList.add('hidden'); } }, 300);
+            overlay.classList.add('hidden');
+        }
+        aiAssistantTrigger.addEventListener('click', openAIAssistant);
+        aiCloseButton.addEventListener('click', closeAIAssistant);
+        overlay.addEventListener('click', closeAIAssistant);
+
+        // --- AI Chat Logic (Placeholder - Full logic from previous version assumed) ---
+        aiSendButton.addEventListener('click', handleAIUserInput);
+        aiUserInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleAIUserInput(); });
+        function handleAIUserInput() { console.log("AI Input:", aiUserInput.value); aiUserInput.value = ''; /* Add full AI logic */ }
+        function displayAIMessage(text, sender, options = null) { /* Add full AI logic */ console.log(`AI Message (${sender}): ${text}`); }
+        function simulateAIResponse(userMessage) { /* Add full AI logic */ console.log("Simulating AI Response for:", userMessage); }
+        function simulateEnergyAnalysis() { /* Add full AI logic */ console.log("Simulating Energy Analysis"); }
+        function presentOptimizationOptions() { /* Add full AI logic */ console.log("Presenting Optimization Options"); }
+        function applyOptimization(choice) { /* Add full AI logic */ console.log("Applying Optimization:", choice); }
+        function cancelOptimization(reason) { /* Add full AI logic */ console.log("Cancelling Optimization:", reason); }
+        function showUsageReport() { /* Add full AI logic */ console.log("Showing Usage Report"); }
+        function genericAction(name) { /* Add full AI logic */ console.log("Performing Generic Action:", name); }
+        function toggleAIInput(enabled) { /* Add full AI logic */ console.log("Toggle AI Input:", enabled); }
+        function showAITypingIndicator(show) { /* Add full AI logic */ console.log("Show AI Typing:", show); }
+
+
+        // --- Initial Setup ---
+        window.addEventListener('load', () => {
+            setInitialActiveLink(); // Set active link on load
+            displayEnergyStats('today'); // Display today's stats & flow by default
+            toggleAIInput(true); // Ensure AI input is enabled initially
+        });
+
+        // Optional: Recalculate flow on window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                 if (activeSection === 'energy-section') {
+                     const currentPeriod = document.querySelector('.time-period-btn.active')?.dataset.period || 'today';
+                     const liveData = energyData[currentPeriod]?.live || energyData.today.live;
+                     updateEnergyFlowVisualization(liveData);
+                 }
+            }, 250); // Debounce resize events
+        });
+
+    </script>
+
+</body>
+</html>
